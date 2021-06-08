@@ -1,20 +1,20 @@
 package com.db.login;
 
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bson.Document;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+
+import com.db.util.ApiUtility;
 
 @Service
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -26,7 +26,14 @@ public class LoginService {
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
+	@Autowired
+	private HttpServletRequest request;
+
+	@Autowired
+	private ApiUtility apiUtility;
+
 	public Map userLogin(Login login) {
+		System.out.println("Methos Started");
 		Map response = new HashMap();
 		List<Map> results = new ArrayList<Map>();
 		response.put("success", false);
@@ -71,9 +78,26 @@ public class LoginService {
 			}
 
 			if (results != null && passwordResults != null) {
-				response.put("success", true);
-				response.put("data", results);
-				response.put("message", "successfully login");
+
+				String ip = request.getHeader("X-FORWARDED-FOR");
+				if (ip == null || "".equals(ip)) {
+					ip = request.getRemoteAddr();
+				}
+				String uname = "";
+				if (results.get(0).containsKey("userName"))
+					uname = (String) results.get(0).get("loginId");
+
+				String token = apiUtility.generateToken(uname, ip);
+
+				if (token != null && !"".equals(token)) {
+					response.put("token", token);
+					response.put("success", true);
+					response.put("data", results);
+					response.put("message", "successfully login");
+				} else {
+					response.put("message", "Sorry! Something went wrong. Please try again later");
+				}
+
 			} else {
 				response.put("message", "Login failed!");
 			}

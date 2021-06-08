@@ -61,12 +61,15 @@ public class RegisterController {
 	}
 
 	@GetMapping("/user-exist/{username}")
+	@CrossOrigin
 	public boolean isUserNameExists(@PathVariable("username") String username) {
+		System.out.println("Hello");
 		boolean result = registerService.isUserNameExists(username);
 		return result;
 	}
 
-	@GetMapping("/user-exist/{email}")
+	@GetMapping("/email-exist/{email}")
+	@CrossOrigin
 	public boolean isEmailExists(@PathVariable("email") String email) {
 		boolean result = registerService.isEmailExists(email);
 		return result;

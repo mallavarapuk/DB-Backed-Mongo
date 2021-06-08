@@ -113,6 +113,8 @@ public class RegisterService {
 			register.setConfirmPassword(null);
 			Register responses = registerRepository.save(register);
 			response.put("data", responses);
+			response.put("success", true);
+			response.put("message", "Successfully registered!");
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.put("message", "Unable to process this request right now!");
@@ -324,10 +326,10 @@ public class RegisterService {
 		boolean result = false;
 		try {
 			int size = 0;
-			Criteria criteria = new Criteria();
-			criteria.where("userName").is(username);
-			Query querys = new Query();
-			size = mongoOperations.find(querys, Map.class, "tblUsers").size();
+			Query query = new Query();
+			query.addCriteria(new Criteria().andOperator(Criteria.where("userName").regex("^" + username + "$", "i")));
+			size = mongoOperations.find(query, Map.class, "tblUsers").size();
+			System.out.println(size);
 			if (size == 1) {
 				result = true;
 			}
@@ -344,10 +346,9 @@ public class RegisterService {
 		boolean result = false;
 		try {
 			int size = 0;
-			Criteria criteria = new Criteria();
-			criteria.where("emailId").is(emailId);
-			Query querys = new Query();
-			size = mongoOperations.find(querys, Map.class, "tblUsers").size();
+			Query query = new Query();
+			query.addCriteria(new Criteria().andOperator(Criteria.where("emailId").regex("^" + emailId + "$", "i")));
+			size = mongoOperations.find(query, Map.class, "tblUsers").size();
 			if (size == 1) {
 				result = true;
 			}

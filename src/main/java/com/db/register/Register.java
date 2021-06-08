@@ -17,6 +17,15 @@ public class Register {
 	private String password;
 	private String confirmPassword;
 	private String availability;
+	private boolean isConditionAccepted;
+
+	public boolean isConditionAccepted() {
+		return isConditionAccepted;
+	}
+
+	public void setConditionAccepted(boolean isConditionAccepted) {
+		this.isConditionAccepted = isConditionAccepted;
+	}
 
 	public String getAvailability() {
 		return availability;
