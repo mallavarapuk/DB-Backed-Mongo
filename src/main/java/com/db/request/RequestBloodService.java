@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import com.db.register.RegisterService;
 import com.db.util.DataSourceDataProvider;
 import com.mongodb.client.result.UpdateResult;
 
@@ -25,6 +26,9 @@ public class RequestBloodService {
 
 	@Autowired
 	private DataSourceDataProvider dataSourceDataProvider;
+
+	@Autowired
+	private RegisterService registerService;
 
 	public Map createRequestForBlood(RequestBlood requestBlood) {
 		Map response = new HashMap();
@@ -61,7 +65,8 @@ public class RequestBloodService {
 					uniqueCode = dataSourceDataProvider.getAlphaNumericRandomKey(16);
 				}
 			}
-
+			String disName = registerService.getDistrictName(districtName);
+			requestBlood.setDistrictName(disName);
 			requestBlood.setUniqueCode(uniqueCode);
 			requestBlood.setStatus("Active");
 			RequestBlood result = mongoOperations.save(requestBlood, "tblRequests");
@@ -96,6 +101,8 @@ public class RequestBloodService {
 			Query query = new Query();
 			query.addCriteria(Criteria.where("uniqueCode").is(uniqueCode));
 			result = mongoOperations.findOne(query, Map.class, "tblRequests");
+			String disCode = registerService.getDistrictCode(result.get("districtName").toString());
+			result.put("districtName", disCode);
 			if (result != null && result.size() > 0) {
 				response.put("success", true);
 				response.put("data", result);
@@ -144,10 +151,13 @@ public class RequestBloodService {
 				return response;
 			}
 
+			String disName = registerService.getDistrictName(districtName);
+			requestBlood.setDistrictName(disName);
+
 			Update update = new Update();
 			update.set("bloodGroup", bloodGroup);
 			update.set("stateName", stateName);
-			update.set("districtName", districtName);
+			update.set("districtName", disName);
 			update.set("cityName", cityName);
 			update.set("phoneNumber", phoneNumber);
 			update.set("emailId", emailId);

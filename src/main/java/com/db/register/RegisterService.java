@@ -239,6 +239,76 @@ public class RegisterService {
 		return response;
 	}
 
+	public String getDistrictName(String districtCode) {
+		String finalList = "";
+		try {
+			MongoCollection<Document> collection = mongoOperations.getCollection("tblLKStatesAndDistricts");
+			MongoCursor<Document> myDoc = collection.find(eq("DistrictCode", districtCode)).iterator();
+			while (myDoc.hasNext()) {
+				finalList = (String) myDoc.next().get("DistrictName");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return finalList;
+	}
+
+	public String getDistrictCode(String districtName) {
+		String finalList = "";
+		System.out.println(districtName);
+		try {
+			MongoCollection<Document> collection = mongoOperations.getCollection("tblLKStatesAndDistricts");
+			MongoCursor<Document> myDoc = collection.find(eq("DistrictName", districtName)).iterator();
+			while (myDoc.hasNext()) {
+				finalList = (String) myDoc.next().get("DistrictCode");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return finalList;
+	}
+
+	public Map getBloodGroups() {
+		List finalList = new ArrayList();
+		Map response = new HashMap();
+		response.put("data", finalList);
+		response.put("success", false);
+		response.put("message", "Unable to connect database");
+		Map statesMap = new HashMap();
+
+		try {
+			Document query = new Document();
+			List<String> results = new ArrayList();
+			mongoOperations.getCollection("tblLKBloodGroup").distinct("bloodGroup", query, String.class).into(results);
+			for (String bloodGroup : results) {
+				statesMap = new HashMap();
+				if (bloodGroup != null && !bloodGroup.equalsIgnoreCase("")) {
+					statesMap.put("bloodGroup", bloodGroup);
+					finalList.add(statesMap);
+				}
+			}
+
+			if (finalList.size() > 0) {
+				response.put("data", finalList);
+				response.put("success", true);
+				response.put("message", "successfully retrived the list of Blood Groups");
+
+			} else {
+				response.put("message", "Sorry! No states found.");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.put("message", "Unable to process this request right now!");
+		}
+
+		return response;
+	}
+
 	public Map getDistrictData() {
 		Map res = new HashMap();
 		ArrayList data = new ArrayList();
@@ -373,12 +443,12 @@ public class RegisterService {
 			String stateName = register.getState();
 			String districtName = register.getDistrict();
 			String cityName = register.getCity();
-
+			
 			Query query = new Query();
 			query.addCriteria(new Criteria().andOperator(Criteria.where("bloodGroup").is(bloodGroup),
 					Criteria.where("state").is(stateName), Criteria.where("district").is(districtName)));
 
-			if (cityName != null && cityName.length() > 0) {
+			if (cityName != null && cityName.length() > 0 && !cityName.equalsIgnoreCase("All")) {
 				query.addCriteria(Criteria.where("city").is(cityName));
 			}
 

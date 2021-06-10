@@ -20,18 +20,21 @@ public class RequestBloodController {
 	private RequestBloodService requestBloodService;
 
 	@PostMapping("/request-blood")
+	@CrossOrigin
 	public Map createRequestForBlood(@RequestBody RequestBlood requestBlood) {
 		Map response = requestBloodService.createRequestForBlood(requestBlood);
 		return response;
 	}
 
 	@GetMapping("/request-blood/{id}")
+	@CrossOrigin
 	public Map getRequestedDetails(@PathVariable("id") String uniqueCode) {
 		Map response = requestBloodService.getRequestedDetails(uniqueCode);
 		return response;
 	}
 
-	@PutMapping("/request-blood")
+	@PostMapping("/request-bloods")
+	@CrossOrigin
 	public Map updatedRequestedDetails(@RequestBody RequestBlood requestBlood) {
 		Map response = requestBloodService.updatedRequestedDetails(requestBlood);
 		return response;

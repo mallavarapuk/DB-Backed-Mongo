@@ -16,6 +16,16 @@ public class RequestBlood {
 	private String lastDate;
 	private String uniqueCode;
 	private String status;
+	private int age;
+	
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
 
 	public String getGender() {
 		return gender;
